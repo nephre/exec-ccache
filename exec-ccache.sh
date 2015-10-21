@@ -49,17 +49,18 @@ while true; do
 done
 
 IDENTIFIER="${HOSTNAME}/exec-ccache"
+[[ ${PLUGINUSER} == $(id -un) ]] && SUDO_CMD="" || SUDO_CMD="sudo -u ${PLUGINUSER}"
 
 while true; do
-    CCACHE_STATS=$(sudo -u "${PLUGINUSER}" ccache -s)
+    CCACHE_STATS=$(${SUDO_CMD} ccache -s)
 
     if [ $? -ne 0 ]; then
 	echo "Error executing sudo -u ${PLUGINUSER}, aborting" >&2
 	exit 2
     fi
 
-    CCACHE_SIZE_VALUE=$(echo "$CCACHE_STATS" | grep '^cache size' | awk '{print $3}')
-    CCACHE_SIZE_UNIT=$(echo "$CCACHE_STATS" | grep '^cache size' | awk '{print $4}')
+    CCACHE_SIZE_VALUE=$(echo "${CCACHE_STATS}" | grep '^cache size' | awk '{print $3}')
+    CCACHE_SIZE_UNIT=$(echo "${CCACHE_STATS}" | grep '^cache size' | awk '{print $4}')
 
     case "${CCACHE_SIZE_UNIT}" in
 	TB|Tbytes)
