@@ -10,14 +10,14 @@ usage()
     cat <<USAGE
 $0 -h hostname -i interval -u user
 
-    -h 		Hostname. If not set, default for collectd will be used
+    -h 		Hostname. If not set, default for collectd or \$(hostname -f) will be used
     -i 		Interval. Defaults to 60 seconds
     -u 		User. By default - user who runs collectd
 USAGE
 }
 
 # Defaults:
-HOSTNAME=${COLLECTD_HOSTNAME:-localhost}
+HOSTNAME=${COLLECTD_HOSTNAME:-$(hostname -f)}
 INTERVAL=${COLLECTD_INTERVAL:-60}
 PLUGINUSER=$(id -un)
 
