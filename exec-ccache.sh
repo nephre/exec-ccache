@@ -10,18 +10,37 @@ usage()
     cat <<USAGE
 $0 -h hostname -i interval -u user
 
-    -h 		Hostname. If not set, default for collectd or \$(hostname -f) will be used
+    -h 		Hostname. If not set, default for collectd or \$(hostname) will be used
     -i 		Interval. Defaults to 60 seconds
-    -u 		User. By default - user who runs collectd
+    -u 		User for who ccache is monitored. By default - user who runs collectd
+    --check     Self check
+    --help      This screen
 USAGE
 }
 
+check()
+{
+    local REQUIREMENTS=(bc awk)
+    local STATUS=0
+
+    for BINARY in ${REQUIREMENTS[*]}; do
+	echo -n "Checking for ${BINARY}... "
+
+	if ! which ${BINARY} 2> /dev/null; then
+	    echo "not found!"
+	    STATUS=1
+	fi
+    done
+
+    exit ${STATUS}
+}
+
 # Defaults:
-HOSTNAME=${COLLECTD_HOSTNAME:-$(hostname -f)}
+HOSTNAME=${COLLECTD_HOSTNAME:-$(hostname)}
 INTERVAL=${COLLECTD_INTERVAL:-60}
 PLUGINUSER=$(id -un)
 
-OPTS=$(getopt -n "$(basename "${0}")" -o 'i:u:h:' -l 'help' -- "$@")
+OPTS=$(getopt -n "$(basename "${0}")" -o 'i:u:h:' -l 'check,help' -- "$@")
 
 eval set -- "$OPTS"
 
@@ -36,6 +55,9 @@ while true; do
 	-u)
 	    PLUGINUSER=$2
 	    shift 2;;
+	--check)
+	    check
+	    exit;;
 	--help)
 	    usage
 	    exit;;
